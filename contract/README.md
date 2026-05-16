@@ -1,7 +1,7 @@
 # Formrus Move Contract
 
 Module: `formrus::registry`  
-Source: `contracts/formrus/sources/formrus.move`
+Source: `contract/sources/formrus.move`
 
 This module implements shared on-chain forms with:
 - eligibility-gated submissions
@@ -183,11 +183,11 @@ All built-ins route through package-internal `accept_response(...)`, which enfor
 
 ## Testing
 
-Move tests live in `contracts/formrus/sources/tests.move`.
+Move tests live in `contract/sources/tests.move`.
 
 Run (with Sui CLI installed and writable Move cache):
 
 ```bash
-cd contracts/formrus
+cd contract
 sui move test
 ```

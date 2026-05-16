@@ -3,14 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "web"
   ],
   "scripts": {
     "dev": "npm run dev --workspace @formrus/web",
     "build": "npm run build --workspace @formrus/web",
     "preview": "npm run preview --workspace @formrus/web",
-    "typecheck": "npm run typecheck --workspace @formrus/web",
-    "sdk:build": "npm run build --workspace @formrus/sdk"
+    "typecheck": "npm run typecheck --workspace @formrus/web"
   }
 }

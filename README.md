@@ -10,12 +10,12 @@ Formrus is a backendless, on-chain form platform on Sui.
 
 ```text
 formrus/
-├── apps/web/                  # React + Vite product app
+├── web/                       # React + Vite product app
 │   ├── src/pages/BuilderPage.tsx
 │   ├── src/pages/PublicViewPage.tsx
 │   ├── src/pages/DashboardPage.tsx
 │   └── src/pages/DashboardFormPage.tsx
-└── contracts/formrus/         # Move package: formrus::registry
+└── contract/                  # Move package: formrus::registry
     └── sources/formrus.move
 ```
 
@@ -85,7 +85,7 @@ Main integrations:
 
 ## Contract Capabilities (Current)
 
-From `contracts/formrus/sources/formrus.move`:
+From `contract/sources/formrus.move`:
 
 - register form with DNA uniqueness
 - submit via built-in handlers with eligibility enforcement
@@ -95,11 +95,11 @@ From `contracts/formrus/sources/formrus.move`:
 - drain flows (immediate drain or scheduled drain with delay)
 - creator transfer flow (propose + accept)
 
-See full contract reference: `contracts/formrus/README.md`
+See full contract reference: `contract/README.md`
 
 ## Environment
 
-Use `apps/web/.env.example` as template.
+Use `web/.env.example` as template.
 
 Required variables:
 - `VITE_SUI_NETWORK`
@@ -131,14 +131,14 @@ npm run build
 npm run typecheck
 ```
 
-Build output: `apps/web/dist`
+Build output: `web/dist`
 
 ## Deployment
 
-Deploy `apps/web/dist` to static hosting.
+Deploy `web/dist` to static hosting.
 
 Netlify SPA routing is supported via:
-- `apps/web/public/_redirects`
+- `web/public/_redirects`
 
 ## Operations Notes
 
@@ -146,4 +146,3 @@ Netlify SPA routing is supported via:
 - Schema blob can be renewed because form stores a mutable `schema_blob_id`.
 - Response blob IDs are immutable per submission event in current contract.
 - Keep backup of important schema JSON versions used in production.
-
