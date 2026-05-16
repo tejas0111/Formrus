@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
+  <title id="title">FORMRUS</title>
+  <desc id="desc">Formrus wordmark with retro shadow.</desc>
+  <defs>
+    <filter id="retroShadow" x="-20%" y="-20%" width="160%" height="180%">
+      <feOffset dx="4" dy="4" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 1 0" />
+    </filter>
+  </defs>
+  <g filter="url(#retroShadow)">
+    <text
+      x="12"
+      y="84"
+      font-family="'Space Mono', monospace"
+      font-size="72"
+      font-weight="700"
+      letter-spacing="1.5"
+      fill="#FFFFFF"
+      stroke="#111111"
+      stroke-width="3.2"
+      paint-order="stroke fill"
+    >
+      FORMRUS
+    </text>
+  </g>
+</svg>

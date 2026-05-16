@@ -1,0 +1,7 @@
+[package]
+name = "formrus"
+version = "0.0.1"
+edition = "2024.beta"
+
+[addresses]
+formrus = "0x0"
