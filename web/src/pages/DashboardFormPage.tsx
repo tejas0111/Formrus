@@ -1085,6 +1085,37 @@ export function DashboardFormPage() {
           </div>
         </div>
 
+        <div className="xl:hidden grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setFormPreviewOpen(true)}
+            className="retro-button-neon text-[10px] justify-center"
+            style={{ backgroundColor: "#39FF14", color: "#000" }}
+          >
+            <ArrowUpRight size={14} />
+            Open Form
+          </button>
+          {canAdmin ? (
+            <button
+              type="button"
+              onClick={() => setFormSettingsOpen(true)}
+              className="retro-button text-[10px] justify-center"
+            >
+              <Settings2 size={14} />
+              Form Settings
+            </button>
+          ) : null}
+          <a
+            href={`/embed/${formId}`}
+            target="_blank"
+            rel="noopener"
+            className="retro-button text-[10px] justify-center"
+          >
+            <Send size={14} />
+            Preview Embed
+          </a>
+        </div>
+
         {/* ── Status banners ──────────────────────────────────── */}
         {error ? (
           <div className="border-[3px] border-retro-border p-4 mb-6 font-mono text-xs" style={{ background: "var(--bg-card)", color: "#FF69B4", boxShadow: "4px 4px 0px var(--shadow-color)" }}>

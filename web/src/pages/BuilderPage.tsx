@@ -309,7 +309,7 @@ export function BuilderPage() {
   const publishButtonRef = useRef<HTMLButtonElement | null>(null);
   const [searchParams] = useSearchParams();
   const [draft, setDraft] = useState<FormDraft>(initialDraft);
-  const [selectedId, setSelectedId] = useState<string | null>("form");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [advancedSettingsOpen, setAdvancedSettingsOpen] = useState(false);
@@ -496,10 +496,10 @@ export function BuilderPage() {
     };
   }, [showGuide]);
 
-  // Lock body scroll when mobile field settings sheet is open
+  // Lock body scroll when the compact settings sheet is open
   useEffect(() => {
-    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-    if (selectedId && isMobile && !previewMode) {
+    const usesCompactSheet = window.matchMedia("(max-width: 1279px)").matches;
+    if (selectedId && usesCompactSheet && !previewMode) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
@@ -810,7 +810,7 @@ export function BuilderPage() {
       <div className="flex flex-1 min-w-0 overflow-hidden">
         {!previewMode && leftPanelOpen ? (
           <aside
-            className="w-80 xl:w-96 border-r-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden xl:block"
+            className="w-80 xl:w-96 border-r-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden lg:block"
             style={{ background: "var(--bg-secondary)" }}
           >
             <div className="p-4">
@@ -881,7 +881,7 @@ export function BuilderPage() {
           </aside>
         ) : null}
         {!previewMode && !leftPanelOpen ? (
-          <aside className="w-12 border-r-[3px] border-retro-border flex-shrink-0 hidden xl:flex items-start justify-center pt-4" style={{ background: "var(--bg-secondary)" }}>
+          <aside className="w-12 border-r-[3px] border-retro-border flex-shrink-0 hidden lg:flex items-start justify-center pt-4" style={{ background: "var(--bg-secondary)" }}>
             <button onClick={() => setLeftPanelOpen(true)} className="w-8 h-8 flex items-center justify-center border-[2px] border-retro-border transition-colors hover:border-neon-lime" style={{ boxShadow: "1px 1px 0px var(--shadow-color)" }} title="Show builder tools" aria-label="Open settings panel">
               <PanelLeftOpen size={14} />
             </button>
@@ -892,15 +892,15 @@ export function BuilderPage() {
           <div className="max-w-2xl mx-auto py-6 md:py-8 px-4">
             {!previewMode ? (
               <>
-                <BuilderFlowCard steps={builderSteps} onOpenGuide={() => setShowGuide(true)} className="xl:hidden mb-4" />
-                <div className="xl:hidden flex gap-2 overflow-x-auto pb-4 mb-4 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
+                <BuilderFlowCard steps={builderSteps} onOpenGuide={() => setShowGuide(true)} className="lg:hidden mb-4" />
+                <div className="lg:hidden grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
                   {fieldLibrary.map((field) => {
                     const Icon = field.icon;
                     return (
                       <button
                         key={field.type}
                         onClick={() => addField(field.type)}
-                        className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 border-[3px] border-retro-border font-mono text-[10px] uppercase snap-start"
+                        className="flex items-center gap-1.5 px-3 py-2 border-[3px] border-retro-border font-mono text-[10px] uppercase text-left"
                         style={{ background: "var(--bg-card)", color: "var(--text-secondary)", boxShadow: "2px 2px 0px var(--shadow-color)" }}
                       >
                         <Icon size={13} strokeWidth={2.5} />
@@ -908,6 +908,24 @@ export function BuilderPage() {
                       </button>
                     );
                   })}
+                </div>
+                <div className="lg:hidden grid grid-cols-2 gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId("form")}
+                    className="retro-button text-[10px] justify-center"
+                  >
+                    <Settings2 size={13} />
+                    Form Settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdvancedSettingsOpen(true)}
+                    className="retro-button text-[10px] justify-center"
+                  >
+                    <ShieldCheck size={13} />
+                    Rules & Access
+                  </button>
                 </div>
               </>
             ) : null}
@@ -1113,7 +1131,7 @@ export function BuilderPage() {
               </div>
             </aside>
 
-            {/* Mobile settings bottom sheet */}
+            {/* Compact settings bottom sheet */}
             <div
               className="xl:hidden fixed inset-0 z-[150] flex items-end"
               style={{ background: "rgba(0,0,0,0.5)" }}
@@ -1208,12 +1226,28 @@ export function BuilderPage() {
         />
       ) : null}
 
-      {/* Mobile action bar — visible only on small screens when connected */}
+      {/* Compact action bar — visible until desktop side panels take over */}
       {account?.address ? (
         <div
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-[90] flex items-center justify-between gap-2 px-3 py-2 border-t-[3px] border-retro-border"
+          className="xl:hidden fixed bottom-0 left-0 right-0 z-[90] flex items-center justify-between gap-2 px-3 py-2 border-t-[3px] border-retro-border"
           style={{ background: "var(--nav-bg)", boxShadow: "0 -3px 0 var(--shadow-color)" }}
         >
+          <button
+            type="button"
+            onClick={() => addField("short_text")}
+            className="retro-button text-[10px] p-2"
+            title="Add field"
+          >
+            <Plus size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedId(selectedId ?? "form")}
+            className="retro-button text-[10px] p-2"
+            title={selectedField ? "Edit selected field" : "Open form settings"}
+          >
+            <Settings2 size={14} />
+          </button>
           <button
             onClick={() => {
               if (publishedFormUrl) {
