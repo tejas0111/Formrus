@@ -41,7 +41,22 @@ export function safeUrl(url: string | undefined): string {
 
 /** Stringify any value for display */
 export function stringifyValue(value: unknown): string {
-  if (Array.isArray(value)) return value.join(", ");
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (item && typeof item === "object") {
+          const record = asRecord(item);
+          const name = typeof record.name === "string" ? record.name : "";
+          const blobId = typeof record.blobId === "string" ? record.blobId : "";
+          if (name && blobId) return `${name} (${blobId})`;
+          if (name) return name;
+          if (blobId) return blobId;
+          return JSON.stringify(item);
+        }
+        return String(item);
+      })
+      .join(", ");
+  }
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "object") return JSON.stringify(value);
