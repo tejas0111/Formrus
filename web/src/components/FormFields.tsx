@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { Bold, Check, ChevronDown, Image, Italic, Link2, List, Star, Upload, Video } from "lucide-react";
 import type { FieldOption, FormField } from "../types/form";
 
@@ -560,8 +560,10 @@ function StarRating({ field, invalid = false }: { field: FormField; invalid?: bo
 /* ── File Upload ───────────────────────────────────────────────── */
 
 function FileUploadField({ field, invalid = false }: { field: FormField; invalid?: boolean }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [fileNames, setFileNames] = useState<string[]>([]);
   const Icon = field.type === "screenshot_upload" ? Image : field.type === "video_upload" ? Video : Upload;
+  const maxFiles = field.maxFiles ?? 1;
 
   return (
     <FieldShell field={field} invalid={invalid}>
@@ -570,15 +572,26 @@ function FileUploadField({ field, invalid = false }: { field: FormField; invalid
         style={{ background: "var(--bg-secondary)" }}
       >
         <input
+          ref={inputRef}
           name={field.id}
           type="file"
           accept={uploadAcceptFor(field)}
-          multiple={(field.maxFiles ?? 1) > 1}
+          multiple={maxFiles > 1}
           required={field.required}
           className="sr-only"
           onChange={(e) => {
-            const files = Array.from(e.target.files ?? []);
-            setFileNames(files.map((file) => file.name));
+            const picked = Array.from(e.target.files ?? []);
+            const existing = Array.from(inputRef.current?.files ?? []);
+            const deduped = new Map<string, File>();
+            for (const file of [...existing, ...picked]) {
+              const key = `${file.name}:${file.size}:${file.lastModified}`;
+              deduped.set(key, file);
+            }
+            const nextFiles = Array.from(deduped.values()).slice(0, maxFiles);
+            const transfer = new DataTransfer();
+            for (const file of nextFiles) transfer.items.add(file);
+            if (inputRef.current) inputRef.current.files = transfer.files;
+            setFileNames(nextFiles.map((file) => file.name));
           }}
         />
         <Icon
@@ -600,6 +613,11 @@ function FileUploadField({ field, invalid = false }: { field: FormField; invalid
             >
               {uploadHintFor(field)}
             </p>
+            {maxFiles > 1 ? (
+              <p className="font-mono text-[9px] mt-1" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+                You can pick files multiple times. Selection is kept up to {maxFiles}.
+              </p>
+            ) : null}
           </>
         )}
       </label>
