@@ -11,6 +11,10 @@ export default function FormrusConnectButton({ compact = false }: { compact?: bo
   const disconnect = widgetWallet?.disconnect ?? (() => disconnectWallet());
   const connect = widgetWallet?.connect;
   const usesHostWallet = Boolean(widgetWallet);
+  const buttonClassName = compact
+    ? "retro-button p-2"
+    : "retro-button px-2.5 py-2 text-[10px] sm:px-4 sm:py-3 sm:text-xs";
+  const labelClassName = compact ? "hidden" : "hidden sm:inline";
 
   if (account) {
     return (
@@ -18,11 +22,11 @@ export default function FormrusConnectButton({ compact = false }: { compact?: bo
         type="button"
         onClick={() => void disconnect()}
         disabled={!widgetWallet?.disconnect && isPending}
-        className={`retro-button ${compact ? "p-2" : "text-xs"} disabled:opacity-50`}
+        className={`${buttonClassName} disabled:opacity-50`}
         title="Disconnect wallet"
       >
         {compact ? <LogOut size={16} strokeWidth={2.5} /> : <Wallet size={14} strokeWidth={2.5} />}
-        {!compact ? <span>{account.label ?? formatAddress(account.address)}</span> : null}
+        <span className={labelClassName}>{account.label ?? formatAddress(account.address)}</span>
       </button>
     );
   }
@@ -33,11 +37,11 @@ export default function FormrusConnectButton({ compact = false }: { compact?: bo
         type="button"
         onClick={connect ? () => void connect() : undefined}
         disabled={!connect}
-        className={`retro-button ${compact ? "p-2" : "text-xs"} disabled:opacity-50`}
+        className={`${buttonClassName} disabled:opacity-50`}
         title={connect ? "Connect wallet" : "Wallet controlled by host page"}
       >
         <Wallet size={compact ? 16 : 14} strokeWidth={2.5} />
-        {!compact ? <span>{connect ? "Connect" : "Host Wallet"}</span> : null}
+        <span className={labelClassName}>{connect ? "Connect" : "Host Wallet"}</span>
       </button>
     );
   }
@@ -45,9 +49,9 @@ export default function FormrusConnectButton({ compact = false }: { compact?: bo
   return (
     <ConnectModal
       trigger={
-        <button type="button" className={`retro-button ${compact ? "p-2" : "text-xs"}`}>
+        <button type="button" className={buttonClassName}>
           <Wallet size={compact ? 16 : 14} strokeWidth={2.5} />
-          {!compact ? <span>Connect</span> : null}
+          <span className={labelClassName}>Connect</span>
         </button>
       }
     />

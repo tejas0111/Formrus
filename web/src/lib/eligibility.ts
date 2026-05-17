@@ -15,7 +15,7 @@ export interface EligibilityCheckResult {
 
 export type EligibilityProof =
   | { kind: "anyone" }
-  | { kind: "sui"; minSuiMist: string }
+  | { kind: "sui"; minSuiMist: string; coinObjectId: string }
   | { kind: "coin"; coinType: string; coinObjectId: string }
   | { kind: "object"; objectType: string; objectId: string };
 
@@ -83,7 +83,13 @@ export async function checkSubmissionEligibility(input: EligibilityCheckInput): 
     if (totalBalance < minSuiMist) {
       messages.push(`Needs at least ${minSuiMist.toString()} mist.`);
     } else {
-      proof = { kind: "sui", minSuiMist: minSuiMist.toString() };
+      const coins = await input.suiClient.getCoins({ owner: input.submitter, limit: 50 });
+      const coin = coins.data.find((item) => BigInt(item.balance) >= minSuiMist);
+      if (!coin) {
+        messages.push(`Needs one SUI coin object with at least ${minSuiMist.toString()} mist.`);
+      } else {
+        proof = { kind: "sui", minSuiMist: minSuiMist.toString(), coinObjectId: coin.coinObjectId };
+      }
     }
   }
 

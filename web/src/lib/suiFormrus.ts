@@ -86,8 +86,7 @@ export function buildSubmitAndActTx(input: {
     // Note: For custom handlers, the proof coin lifecycle is managed by the handler itself.
     // We pass the coin reference but do NOT auto-transfer it back — the handler decides.
     if (proof.kind === "sui") {
-      const [proofCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(proof.minSuiMist)]);
-      args.splice(1, 0, proofCoin);
+      args.splice(1, 0, tx.object(proof.coinObjectId));
       tx.moveCall({
         target: input.customHandlerTarget,
         typeArguments: input.typeArguments ?? [],
@@ -121,19 +120,15 @@ export function buildSubmitAndActTx(input: {
 
   // Built-in handlers (existing behavior)
   if (proof.kind === "sui") {
-    const [proofCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(proof.minSuiMist)]);
-
     tx.moveCall({
       target: `${packageId}::registry::submit_and_act_with_sui`,
       arguments: [
         tx.object(input.formObjectId),
-        proofCoin,
+        tx.object(proof.coinObjectId),
         tx.pure.string(input.responseBlobId),
         tx.object(suiClockId)
       ]
     });
-
-    tx.transferObjects([proofCoin], tx.pure.address(input.submitter));
 
     return tx;
   }

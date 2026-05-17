@@ -2,6 +2,9 @@
 
 Formrus is a backendless, on-chain form platform on Sui.
 
+Website: https://formrus.netlify.app  
+In-app Docs: https://formrus.netlify.app/docs
+
 - Form definitions and control logic live in shared Move objects.
 - Form schema and responses are stored as Walrus blobs.
 - Private responses are encrypted with Seal and decrypted only by authorized wallets.
@@ -36,9 +39,10 @@ Main integrations:
 - all built-ins route through shared acceptance logic (`accept_response`)
 - keeps validation, limits, expiry, and reward prechecks consistent across submit paths
 
-3. **On-Chain Eligibility + Action Coupling**
-- same form object controls who can submit and what action runs on submit
+3. **On-Chain Eligibility + Action + Embed Coupling**
+- same form object controls who can submit, what action runs on submit, and how the same runtime can be reused in embedded distribution
 - supports anyone / min-SUI / coin-type / object-type gating
+- public `/view/:formId` and embeddable `/embed/:formId` stay aligned against the same on-chain schema and policy
 
 4. **Walrus + Schema Versioning**
 - schema blob pointer is mutable (`update_schema_blob_id`)
@@ -77,7 +81,12 @@ Main integrations:
 - public or private response modes
 - file/screenshot/video upload fields supported
 
-3. **Dashboard**
+3. **Embed Runtime**
+- `/embed/:formId` for iframe or host-page distribution
+- uses the same schema, eligibility, and submission pipeline as the public runtime
+- supports host-wallet integration paths for controlled embedded flows
+
+4. **Dashboard**
 - wallet-scoped discovery of forms (creator/admin/viewer)
 - response queue, private decrypt, CSV export
 - form operations: role changes, pool top-up, pause/resume, schema updates, reward/limit updates

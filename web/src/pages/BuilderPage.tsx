@@ -727,7 +727,7 @@ export function BuilderPage() {
   return (
     <div className="min-h-screen flex flex-col dot-grid" style={{ backgroundColor: "var(--bg)" }}>
       <header
-        className="h-16 flex items-center justify-between px-4 lg:px-6 z-50"
+        className="min-h-16 flex flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6 z-50"
         style={{
           background: "var(--nav-bg)",
           borderBottom: "3px solid var(--border-color)",
@@ -746,7 +746,7 @@ export function BuilderPage() {
             value={draft.title}
             onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
             maxLength={120}
-            className="bg-transparent font-mono font-bold text-sm md:text-base focus:outline-none w-40 md:w-72 uppercase tracking-wide"
+            className="bg-transparent font-mono font-bold text-sm md:text-base focus:outline-none w-32 sm:w-48 md:w-72 uppercase tracking-wide min-w-0"
             style={{ color: "var(--text)" }}
           />
           {deployState === "done" ? (
@@ -757,9 +757,9 @@ export function BuilderPage() {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <ThemeToggle compact />
-          <FormrusConnectButton />
+          <FormrusConnectButton compact />
           <button
             onClick={() => {
               if (publishedFormUrl) {
@@ -768,7 +768,7 @@ export function BuilderPage() {
               }
               togglePreviewMode();
             }}
-            className="retro-button text-xs"
+            className="retro-button px-2.5 py-2 text-[10px] sm:text-xs"
             title={publishedFormUrl ? "Open live form" : previewMode ? "Back to edit (⌘P)" : "Preview form (⌘P)"}
             style={previewMode && !publishedFormUrl ? { background: "var(--neon-lime)", color: "#000" } : {}}
           >
@@ -779,7 +779,7 @@ export function BuilderPage() {
             ref={publishButtonRef}
             onClick={() => void deploy()}
             disabled={!account?.address || deployState === "deploying" || validationErrors.length > 0}
-            className="retro-button-neon text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="retro-button-neon px-2.5 py-2 text-[10px] sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: "#39FF14", color: "#000" }}
           >
             {deployState === "deploying" ? <Wallet size={14} strokeWidth={2.5} /> : <Rocket size={14} strokeWidth={2.5} />}
@@ -807,10 +807,10 @@ export function BuilderPage() {
           </div>
         </main>
       ) : (
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-w-0 overflow-hidden">
         {!previewMode && leftPanelOpen ? (
           <aside
-            className="w-96 border-r-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden lg:block"
+            className="w-80 xl:w-96 border-r-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden xl:block"
             style={{ background: "var(--bg-secondary)" }}
           >
             <div className="p-4">
@@ -881,19 +881,19 @@ export function BuilderPage() {
           </aside>
         ) : null}
         {!previewMode && !leftPanelOpen ? (
-          <aside className="w-12 border-r-[3px] border-retro-border flex-shrink-0 hidden lg:flex items-start justify-center pt-4" style={{ background: "var(--bg-secondary)" }}>
+          <aside className="w-12 border-r-[3px] border-retro-border flex-shrink-0 hidden xl:flex items-start justify-center pt-4" style={{ background: "var(--bg-secondary)" }}>
             <button onClick={() => setLeftPanelOpen(true)} className="w-8 h-8 flex items-center justify-center border-[2px] border-retro-border transition-colors hover:border-neon-lime" style={{ boxShadow: "1px 1px 0px var(--shadow-color)" }} title="Show builder tools" aria-label="Open settings panel">
               <PanelLeftOpen size={14} />
             </button>
           </aside>
         ) : null}
 
-        <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
+        <main className="flex-1 min-w-0 overflow-y-auto pb-16 lg:pb-0">
           <div className="max-w-2xl mx-auto py-6 md:py-8 px-4">
             {!previewMode ? (
               <>
-                <BuilderFlowCard steps={builderSteps} onOpenGuide={() => setShowGuide(true)} className="lg:hidden mb-4" />
-                <div className="lg:hidden flex gap-2 overflow-x-auto pb-4 mb-4 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
+                <BuilderFlowCard steps={builderSteps} onOpenGuide={() => setShowGuide(true)} className="xl:hidden mb-4" />
+                <div className="xl:hidden flex gap-2 overflow-x-auto pb-4 mb-4 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
                   {fieldLibrary.map((field) => {
                     const Icon = field.icon;
                     return (
@@ -1071,7 +1071,7 @@ export function BuilderPage() {
         {!previewMode && selectedId ? (
           <>
             {/* Desktop settings sidebar */}
-            <aside className="w-72 border-l-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden lg:block" style={{ background: "var(--bg-secondary)" }}>
+            <aside className="w-72 xl:w-80 border-l-[3px] border-retro-border flex-shrink-0 overflow-y-auto hidden xl:block" style={{ background: "var(--bg-secondary)" }}>
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b-[2px] border-retro-border" style={{ borderColor: "var(--border-light)" }}>
                   <h3 className="font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text)" }}>
@@ -1115,7 +1115,7 @@ export function BuilderPage() {
 
             {/* Mobile settings bottom sheet */}
             <div
-              className="lg:hidden fixed inset-0 z-[150] flex items-end"
+              className="xl:hidden fixed inset-0 z-[150] flex items-end"
               style={{ background: "rgba(0,0,0,0.5)" }}
               onClick={(e) => { if (e.target === e.currentTarget) setSelectedId(null); }}
             >

@@ -486,7 +486,7 @@ export function DashboardPage() {
                   </p>
                 </div>
                 <div ref={searchControlsRef} className="w-full lg:w-[34rem]">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="relative flex-1">
                       <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
                       <input
@@ -515,7 +515,7 @@ export function DashboardPage() {
                       </button>
                       {showFilterMenu ? (
                         <div
-                          className="absolute right-0 top-[calc(100%+0.75rem)] w-80 border-[3px] border-retro-border p-3 z-20"
+                          className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(20rem,calc(100vw-2rem))] sm:w-80 border-[3px] border-retro-border p-3 z-20"
                           style={{ background: "var(--bg-card)", boxShadow: "8px 8px 0px var(--shadow-color)" }}
                         >
                           <div className="absolute -top-3 right-4 w-5 h-5 border-l-[3px] border-t-[3px] border-retro-border rotate-45" style={{ background: "var(--bg-card)" }} />
@@ -657,7 +657,7 @@ export function DashboardPage() {
                   className="block border-[3px] border-retro-border p-4 md:p-5"
                   style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-3">
                         <span className="w-9 h-9 flex items-center justify-center border-[3px] border-retro-border" style={{ backgroundColor: form.actionType === 1 ? "#39FF14" : "#00FFFF", boxShadow: "2px 2px 0px var(--shadow-color)" }}>
@@ -706,19 +706,19 @@ export function DashboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0">
                       <Link
                         to={`/view/${form.formId}`}
                         target="_blank"
                         rel="noopener"
-                        className="retro-button-neon text-[10px] justify-center"
+                        className="retro-button-neon text-[10px] justify-center sm:min-w-[9rem]"
                         style={{ backgroundColor: "#39FF14", color: "#000" }}
                       >
                         Open Form
                       </Link>
                       <Link
                         to={`/dashboard/forms/${form.formId}`}
-                        className="retro-button text-[10px] justify-center"
+                        className="retro-button text-[10px] justify-center sm:min-w-[9rem]"
                       >
                         Manage Form
                       </Link>

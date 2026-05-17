@@ -1004,7 +1004,7 @@ export function DashboardFormPage() {
         {!showAccessGate ? (
           <>
         {/* ── Header ──────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Link
@@ -1049,21 +1049,21 @@ export function DashboardFormPage() {
               </span>
             </div>
           </div>
-          <div ref={actionsRef} className="flex flex-col gap-2 sm:items-end">
-            <div className="flex items-start gap-2">
-              <button onClick={() => void loadFormPage()} disabled={loading} className="retro-button text-xs disabled:opacity-50">
+          <div ref={actionsRef} className="flex flex-col gap-2 lg:items-end">
+            <div className="flex flex-wrap items-start gap-2">
+              <button onClick={() => void loadFormPage()} disabled={loading} className="retro-button text-[10px] sm:text-xs disabled:opacity-50">
                 <RefreshCw size={16} />
                 Refresh
               </button>
-              <button onClick={() => void cloneForm()} disabled={!schema} className="retro-button text-xs disabled:opacity-50">
+              <button onClick={() => void cloneForm()} disabled={!schema} className="retro-button text-[10px] sm:text-xs disabled:opacity-50">
                 <Copy size={16} />
                 Clone
               </button>
-              <div className="flex flex-col gap-2">
+              <div className="flex w-full sm:w-auto flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => setFormPreviewOpen(true)}
-                  className="retro-button-neon text-xs justify-center min-w-[11rem]"
+                  className="retro-button-neon text-[10px] sm:text-xs justify-center sm:min-w-[11rem]"
                   style={{ backgroundColor: "#39FF14", color: "#000" }}
                 >
                   <ArrowUpRight size={16} />
@@ -1074,7 +1074,7 @@ export function DashboardFormPage() {
                     ref={settingsButtonRef}
                     type="button"
                     onClick={() => setFormSettingsOpen(true)}
-                    className="retro-button text-xs justify-center min-w-[11rem]"
+                    className="retro-button text-[10px] sm:text-xs justify-center sm:min-w-[11rem]"
                   >
                     <Settings2 size={16} />
                     Form Settings
@@ -1134,7 +1134,7 @@ export function DashboardFormPage() {
           })}
         </div>
 
-        <div className="grid xl:grid-cols-[minmax(0,1fr)_24rem] gap-4 md:gap-6">
+        <div className="grid 2xl:grid-cols-[minmax(0,1fr)_24rem] gap-4 md:gap-6">
           <section className="space-y-4">
             <div ref={queueRef} className="border-[3px] border-retro-border p-4 md:p-5" style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}>
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
@@ -1187,7 +1187,7 @@ export function DashboardFormPage() {
                     className="w-full text-left border-[2px] border-retro-border p-3 hover:border-neon-lime transition-colors"
                     style={{ background: selected?.event.responseBlobId === response.responseBlobId ? "var(--code-bg)" : "var(--bg-secondary)" }}
                   >
-                    <div className="grid md:grid-cols-[3rem_minmax(0,1fr)_11rem_11rem] gap-3 items-center">
+                    <div className="grid sm:grid-cols-[3rem_minmax(0,1fr)] xl:grid-cols-[3rem_minmax(0,1fr)_11rem_11rem] gap-3 items-center">
                       <div className="w-10 h-10 border-[2px] border-retro-border flex items-center justify-center font-mono text-[10px] font-bold" style={{ background: "#39FF14", color: "#000" }}>
                         {index + 1}
                       </div>
