@@ -1263,8 +1263,7 @@ export function DashboardFormPage() {
                 </div>
                 <CopyButton text={publicLink} label="Copy Public Link" />
                 <CopyButton
-                  text={`<div id="formrus-${formId}"></div>
-<script src="${window.location.origin}/widget.js" data-form-id="${formId}" data-target="#formrus-${formId}"></script>`}
+                  text={`<div id="formrus-${formId}"></div>\n<script src="${window.location.origin}/widget.js" data-form-id="${formId}" data-target="#formrus-${formId}"></script>`}
                   label="Copy Script Embed"
                 />
                 <a href={`/embed/${formId}`} target="_blank" rel="noopener" className="retro-button justify-center text-[10px]">

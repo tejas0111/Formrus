@@ -532,9 +532,15 @@ const sections = [
           />
         </DocCard>
         <DocCard title="Placeholder">
-          <div className="border-[2px] border-dashed border-retro-border p-6 text-center" style={{ background: "var(--bg-card)" }}>
+          <div className="space-y-3">
+            <video
+              className="w-full border-[2px] border-retro-border"
+              controls
+              preload="metadata"
+              src="/videos/untitled.mp4"
+            />
             <p className="font-mono text-[11px]" style={{ color: "var(--text-muted)" }}>
-              Replace this block with a hosted video embed or a documented recording link.
+              Direct link: <a className="underline" href="/videos/untitled.mp4" target="_blank" rel="noreferrer">/videos/untitled.mp4</a>
             </p>
           </div>
         </DocCard>

@@ -4,7 +4,9 @@ node_modules/
 
 # Build outputs
 dist/
+dist-widget/
 **/dist/
+**/dist-widget/
 build/
 **/build/
 out/
@@ -40,3 +42,6 @@ Thumbs.db
 .agents/
 .codex/
 .git-local/
+
+# Local Netlify folder
+.netlify

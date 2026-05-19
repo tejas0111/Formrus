@@ -250,19 +250,47 @@ function unmount(target: string | HTMLElement) {
 
 window.FormrusEmbed = { mount, unmount };
 
-const currentScript = document.currentScript as HTMLScriptElement | null;
-if (currentScript?.dataset.formId) {
-  const target = currentScript.dataset.target || currentScript.previousElementSibling;
-  const theme = currentScript.dataset.theme === "dark"
-    ? "dark"
-    : currentScript.dataset.theme === "light"
-      ? "light"
-      : "system";
-  if (typeof target === "string" || target instanceof HTMLElement) {
-    mount({
-      target,
-      formId: currentScript.dataset.formId,
-      theme,
-    });
+function autoMount() {
+  const scripts = Array.from(document.querySelectorAll<HTMLScriptElement>("script[data-form-id]"));
+
+  // Also check document.currentScript for legacy support if available
+  const currentScript = document.currentScript as HTMLScriptElement | null;
+  if (currentScript && !scripts.includes(currentScript)) {
+    scripts.push(currentScript);
   }
+
+  for (const script of scripts) {
+    if (script.dataset.formrusMounted) continue;
+    script.dataset.formrusMounted = "true";
+
+    const formId = script.dataset.formId;
+    if (!formId) continue;
+
+    const target = script.dataset.target || script.previousElementSibling;
+    const theme =
+      script.dataset.theme === "dark"
+        ? "dark"
+        : script.dataset.theme === "light"
+          ? "light"
+          : "system";
+
+    if (typeof target === "string" || target instanceof HTMLElement) {
+      try {
+        mount({
+          target,
+          formId,
+          theme,
+        });
+      } catch (err) {
+        console.error("Formrus: Failed to auto-mount widget", err);
+      }
+    }
+  }
+}
+
+// Run auto-mount
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", autoMount);
+} else {
+  autoMount();
 }
