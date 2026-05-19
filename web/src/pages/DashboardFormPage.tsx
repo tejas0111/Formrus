@@ -100,6 +100,8 @@ function packageIdFromType(type: unknown): string {
 export function DashboardFormPage() {
   const actionsRef = useRef<HTMLDivElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const actionsMobileRef = useRef<HTMLDivElement | null>(null);
+  const settingsButtonMobileRef = useRef<HTMLButtonElement | null>(null);
   const queueRef = useRef<HTMLDivElement | null>(null);
   const linksRef = useRef<HTMLDivElement | null>(null);
   const { formId = "" } = useParams();
@@ -887,17 +889,24 @@ export function DashboardFormPage() {
   const latestResponse = responses[0]?.createdAtMs;
   const publicLink = formId ? `${window.location.origin}/view/${formId}` : "";
   const responseModalOpen = Boolean(selected) || loadingResponse;
+  const getTarget = (...refs: React.RefObject<HTMLElement | null>[]) => {
+    for (const ref of refs) {
+      if (ref.current && (ref.current.offsetWidth > 0 || ref.current.offsetHeight > 0)) return ref.current;
+    }
+    return null;
+  };
+
   const guideSteps = [
     {
       title: "Primary Actions",
       body: "This stack is the fastest path for refresh, clone, public form preview, and form settings.",
-      target: actionsRef.current,
+      target: getTarget(actionsMobileRef, actionsRef),
       placement: "left" as GuidePlacement,
     },
     {
       title: "Form Settings",
       body: "Open the settings modal here to manage roles, pool, form controls, and danger actions.",
-      target: settingsButtonRef.current,
+      target: getTarget(settingsButtonMobileRef, settingsButtonRef),
       placement: "left" as GuidePlacement,
     },
     {
@@ -1085,7 +1094,7 @@ export function DashboardFormPage() {
           </div>
         </div>
 
-        <div className="xl:hidden grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+        <div ref={actionsMobileRef} className="xl:hidden grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
           <button
             type="button"
             onClick={() => setFormPreviewOpen(true)}
@@ -1097,6 +1106,7 @@ export function DashboardFormPage() {
           </button>
           {canAdmin ? (
             <button
+              ref={settingsButtonMobileRef}
               type="button"
               onClick={() => setFormSettingsOpen(true)}
               className="retro-button text-[10px] justify-center"

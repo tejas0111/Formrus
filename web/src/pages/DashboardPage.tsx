@@ -61,6 +61,7 @@ export function DashboardPage() {
   const searchControlsRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
   const createButtonRef = useRef<HTMLButtonElement | null>(null);
+  const createButtonMobileRef = useRef<HTMLButtonElement | null>(null);
   const managedFormsRef = useRef<HTMLDivElement | null>(null);
 
   const [filter, setFilter] = useState<FormTypeFilter>("all");
@@ -339,6 +340,13 @@ export function DashboardPage() {
   ];
 
   const hasActiveFilters = filter !== "all" || packageFilter !== "all" || accessFilter !== "all" || statusFilter !== "all";
+  const getTarget = (...refs: React.RefObject<HTMLElement | null>[]) => {
+    for (const ref of refs) {
+      if (ref.current && (ref.current.offsetWidth > 0 || ref.current.offsetHeight > 0)) return ref.current;
+    }
+    return null;
+  };
+
   const guideSteps: GuideStep[] = [
     {
       title: "Workspace Snapshot",
@@ -349,7 +357,7 @@ export function DashboardPage() {
     {
       title: "Create Entry Point",
       body: "Use Create Form to start from blank or open a template. This is the cleanest path into the builder.",
-      target: createButtonRef.current,
+      target: getTarget(createButtonMobileRef, createButtonRef),
       placement: "left",
     },
     {
@@ -618,7 +626,7 @@ export function DashboardPage() {
                       <RefreshCw size={14} strokeWidth={2.5} />
                       Refresh
                     </button>
-                    <button onClick={() => setShowCreateModal(true)} className="retro-button-neon text-[10px]" style={{ backgroundColor: "#39FF14", color: "#000" }}>
+                    <button ref={createButtonMobileRef} onClick={() => setShowCreateModal(true)} className="retro-button-neon text-[10px]" style={{ backgroundColor: "#39FF14", color: "#000" }}>
                       <Plus size={14} strokeWidth={2.5} />
                       Create
                     </button>

@@ -305,8 +305,10 @@ function normalizeSuiAddress(addr: string): string {
 export function BuilderPage() {
   const formCardRef = useRef<HTMLDivElement | null>(null);
   const fieldToolsRef = useRef<HTMLDetailsElement | null>(null);
+  const fieldToolsMobileRef = useRef<HTMLButtonElement | null>(null);
   const rulesCardRef = useRef<HTMLDivElement | null>(null);
   const publishButtonRef = useRef<HTMLButtonElement | null>(null);
+  const publishButtonMobileRef = useRef<HTMLButtonElement | null>(null);
   const [searchParams] = useSearchParams();
   const [draft, setDraft] = useState<FormDraft>(initialDraft);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -367,8 +369,16 @@ export function BuilderPage() {
     { key: "fields", label: "Fields", icon: Plus, complete: draft.fields.length > 0, onClick: () => { setPreviewMode(false); setLeftPanelOpen(true); } },
     { key: "rules", label: "Rules", icon: ShieldCheck, complete: true, onClick: () => { setPreviewMode(false); setAdvancedSettingsOpen(true); } },
     { key: "publish", label: "Publish", icon: Rocket, complete: deployState === "done", onClick: () => { setPreviewMode(false); } },
-  ] as const;
-  const guideSteps = [
+    ] as const;
+
+    const getTarget = (...refs: React.RefObject<HTMLElement | null>[]) => {
+    for (const ref of refs) {
+      if (ref.current && (ref.current.offsetWidth > 0 || ref.current.offsetHeight > 0)) return ref.current;
+    }
+    return null;
+    };
+
+    const guideSteps = [
     {
       title: "Form Block",
       body: "Start here. The form itself is selectable, and its title, description, and branding open in the right settings panel.",
@@ -378,7 +388,7 @@ export function BuilderPage() {
     {
       title: "Field Library",
       body: "Add fields from the library or drag them into the canvas. Dedicated screenshot and video uploads live here too.",
-      target: fieldToolsRef.current,
+      target: getTarget(fieldToolsMobileRef, fieldToolsRef),
       placement: "right" as GuidePlacement,
     },
     {
@@ -390,10 +400,10 @@ export function BuilderPage() {
     {
       title: "Publish",
       body: "When the structure looks right, publish the form. After publishing, you can open the live form or embed view directly.",
-      target: publishButtonRef.current,
+      target: getTarget(publishButtonMobileRef, publishButtonRef),
       placement: "left" as GuidePlacement,
     },
-  ];
+    ];
 
   function togglePreviewMode() {
     setPreviewMode((current) => {
@@ -1233,6 +1243,7 @@ export function BuilderPage() {
           style={{ background: "var(--nav-bg)", boxShadow: "0 -3px 0 var(--shadow-color)" }}
         >
           <button
+            ref={fieldToolsMobileRef}
             type="button"
             onClick={() => addField("short_text")}
             className="retro-button text-[10px] p-2"
@@ -1270,6 +1281,7 @@ export function BuilderPage() {
             <Settings2 size={14} />
           </button>
           <button
+            ref={publishButtonMobileRef}
             onClick={() => void deploy()}
             disabled={deployState === "deploying" || validationErrors.length > 0}
             className="retro-button-neon text-[10px] flex-1 justify-center disabled:opacity-50"

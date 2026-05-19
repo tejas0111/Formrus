@@ -61,11 +61,11 @@ const widgetBaseCss = `
   color: var(--text);
   font-family: 'Space Mono', monospace;
   background: var(--bg);
-  min-height: 100%;
   height: 100%;
-}
+  width: 100%;
+  }
 
-.formrus-widget-root.dark {
+  .formrus-widget-root.dark {
   --bg: #111111;
   --bg-secondary: #1A1A1A;
   --bg-card: #1A1A1A;
@@ -78,8 +78,8 @@ const widgetBaseCss = `
   --border-light: #333333;
   --shadow-color: #3A3A3A;
   --text-shadow-color: #3A3A3A;
-}
-`;
+  }
+  `;
 
 function resolveTheme(theme: WidgetTheme): "light" | "dark" {
   if (theme === "system") {
