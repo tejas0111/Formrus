@@ -1110,9 +1110,10 @@ export function DashboardFormPage() {
               type="button"
               onClick={() => setFormSettingsOpen(true)}
               className="retro-button text-[10px] justify-center"
+              title="Open admin form settings"
             >
               <Settings2 size={14} />
-              Form Settings
+              Admin Settings
             </button>
           ) : null}
           <a
