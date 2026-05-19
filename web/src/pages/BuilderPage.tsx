@@ -1250,17 +1250,20 @@ export function BuilderPage() {
             title="Add field"
           >
             <Plus size={14} />
+            <span className="hidden min-[360px]:inline">Field</span>
           </button>
           <button
             type="button"
-            onClick={() => setSelectedId(selectedId ?? "form")}
+            onClick={() => setSelectedId("form")}
             className="retro-button text-[10px] p-2"
-            title={selectedField ? "Edit selected field" : "Open form settings"}
+            title="Open form settings"
           >
             <Settings2 size={14} />
+            <span className="hidden min-[360px]:inline">Form</span>
           </button>
           <button
             onClick={() => {
+              setSelectedId(null);
               if (publishedFormUrl) {
                 window.open(publishedFormUrl, "_blank", "noopener,noreferrer");
                 return;
@@ -1271,14 +1274,19 @@ export function BuilderPage() {
             title={publishedFormUrl ? "Open live form" : previewMode ? "Edit" : "Preview"}
           >
             {publishedFormUrl ? <Eye size={14} /> : previewMode ? <EyeOff size={14} /> : <Eye size={14} />}
+            <span className="hidden min-[360px]:inline">{publishedFormUrl ? "Live" : previewMode ? "Edit" : "Preview"}</span>
           </button>
           <button
             type="button"
-            onClick={() => setAdvancedSettingsOpen(true)}
+            onClick={() => {
+              setSelectedId(null);
+              setAdvancedSettingsOpen(true);
+            }}
             className="retro-button text-[10px] p-2"
             title="Advanced settings"
           >
-            <Settings2 size={14} />
+            <ShieldCheck size={14} />
+            <span className="hidden min-[360px]:inline">Rules</span>
           </button>
           <button
             ref={publishButtonMobileRef}
