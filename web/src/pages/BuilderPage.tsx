@@ -307,6 +307,7 @@ export function BuilderPage() {
   const fieldToolsRef = useRef<HTMLDetailsElement | null>(null);
   const fieldToolsMobileRef = useRef<HTMLButtonElement | null>(null);
   const rulesCardRef = useRef<HTMLDivElement | null>(null);
+  const rulesButtonMobileRef = useRef<HTMLButtonElement | null>(null);
   const publishButtonRef = useRef<HTMLButtonElement | null>(null);
   const publishButtonMobileRef = useRef<HTMLButtonElement | null>(null);
   const [searchParams] = useSearchParams();
@@ -394,7 +395,7 @@ export function BuilderPage() {
     {
       title: "Rules And Access",
       body: "Open advanced settings here to configure privacy, team access, rewards, limits, and onchain eligibility.",
-      target: rulesCardRef.current,
+      target: getTarget(rulesButtonMobileRef, rulesCardRef),
       placement: "right" as GuidePlacement,
     },
     {
@@ -565,7 +566,7 @@ export function BuilderPage() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [lastDeletedField, toast, selectedId]);
 
-  const addField = useCallback((type: FieldType, index?: number) => {
+  const addField = useCallback((type: FieldType, index?: number, shouldSelect = true) => {
     const field = newField(type);
     setDraft((current) => {
       const fields = [...current.fields];
@@ -573,7 +574,7 @@ export function BuilderPage() {
       else fields.push(field);
       return { ...current, fields };
     });
-    setSelectedId(field.id);
+    if (shouldSelect) setSelectedId(field.id);
   }, []);
 
   function updateField(fieldId: string, patch: Partial<FormField>) {
@@ -1217,7 +1218,7 @@ export function BuilderPage() {
         />
       ) : null}
 
-      <div className="mt-auto px-4 md:px-6 lg:px-10 pb-20 lg:pb-8">
+      <div className="mt-auto px-4 md:px-6 lg:px-10 pb-24 lg:pb-8">
         <SiteFooter />
       </div>
 
@@ -1239,13 +1240,13 @@ export function BuilderPage() {
       {/* Compact action bar — visible until desktop side panels take over */}
       {account?.address ? (
         <div
-          className="xl:hidden fixed bottom-0 left-0 right-0 z-[90] flex items-center justify-between gap-2 px-3 py-2 border-t-[3px] border-retro-border"
-          style={{ background: "var(--nav-bg)", boxShadow: "0 -3px 0 var(--shadow-color)" }}
+          className="xl:hidden fixed bottom-0 left-0 right-0 z-[90] flex items-center justify-between gap-2 px-3 pt-2 border-t-[3px] border-retro-border"
+          style={{ background: "var(--nav-bg)", boxShadow: "0 -3px 0 var(--shadow-color)", paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom, 0px))" }}
         >
           <button
             ref={fieldToolsMobileRef}
             type="button"
-            onClick={() => addField("short_text")}
+            onClick={() => addField("short_text", undefined, false)}
             className="retro-button text-[10px] p-2"
             title="Add field"
           >
@@ -1277,6 +1278,7 @@ export function BuilderPage() {
             <span className="hidden min-[360px]:inline">{publishedFormUrl ? "Live" : previewMode ? "Edit" : "Preview"}</span>
           </button>
           <button
+            ref={rulesButtonMobileRef}
             type="button"
             onClick={() => {
               setSelectedId(null);
@@ -2443,7 +2445,7 @@ function FormSettings({
         className="retro-button text-[10px] w-full justify-center"
       >
         <Settings2 size={13} />
-        Open Advanced Form Settings
+        Open Advanced Form Settings <span aria-hidden="true">&gt;</span>
       </button>
     </div>
   );
