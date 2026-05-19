@@ -1251,8 +1251,8 @@ export function DashboardFormPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-4">
-              <div className="border-[3px] border-retro-border p-4" style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}>
+            <div className="grid lg:grid-cols-2 gap-4 min-w-0">
+              <div className="min-w-0 border-[3px] border-retro-border p-4 overflow-x-hidden" style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}>
                 <h2 className="font-mono font-bold text-xs uppercase mb-3" style={{ color: "var(--text)" }}>Distribution</h2>
                 {responses.length > 0 ? <ResponseChart responses={responses} /> : (
                   <div className="border-[2px] border-dashed border-retro-border p-6 text-center font-mono text-[10px]" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>
@@ -1261,7 +1261,7 @@ export function DashboardFormPage() {
                 )}
               </div>
 
-              <div ref={linksRef} className="border-[3px] border-retro-border p-4 space-y-4" style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}>
+              <div ref={linksRef} className="min-w-0 border-[3px] border-retro-border p-4 space-y-4 overflow-x-hidden" style={{ background: "var(--bg-card)", boxShadow: "4px 4px 0px var(--shadow-color)" }}>
                 <div>
                   <h2 className="font-mono font-bold text-xs uppercase mb-2" style={{ color: "var(--text)" }}>Distribution Links</h2>
                   <p className="font-mono text-[10px]" style={{ color: "var(--text-muted)" }}>
@@ -2138,7 +2138,7 @@ function InfoTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="border-[2px] border-retro-border p-3" style={{ background: "var(--bg-secondary)" }}>
       <div className="font-mono text-[10px] uppercase font-bold mb-1" style={{ color: "var(--text-muted)" }}>{label}</div>
-      <div className="font-mono text-xs truncate" style={{ color: "var(--text)" }}>{value}</div>
+      <div className="font-mono text-xs break-all" style={{ color: "var(--text)" }}>{value}</div>
     </div>
   );
 }
