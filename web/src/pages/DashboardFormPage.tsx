@@ -949,7 +949,7 @@ export function DashboardFormPage() {
     <div className="min-h-screen flex flex-col dot-grid" style={{ backgroundColor: "var(--bg)" }}>
       <TopNav />
 
-      <main className="flex-1 pt-24 pb-12 px-4 md:px-6 lg:px-10 max-w-7xl mx-auto w-full">
+      <main className="flex-1 pt-24 pb-12 px-4 md:px-6 lg:px-10 max-w-7xl mx-auto w-full overflow-x-hidden">
         {showAccessGate ? (
           <section className="max-w-4xl mx-auto border-[3px] border-retro-border overflow-hidden" style={{ background: "var(--bg-card)", boxShadow: "6px 6px 0px var(--shadow-color)" }}>
             <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
@@ -1235,7 +1235,7 @@ export function DashboardFormPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="font-mono text-xs truncate" style={{ color: "var(--text)" }}>{shorten(response.responseBlobId, 16, 10)}</div>
-                        <div className="font-mono text-[10px] truncate" style={{ color: "var(--text-muted)" }}>Tx {response.txDigest}</div>
+                        <div className="font-mono text-[10px] break-all md:truncate" style={{ color: "var(--text-muted)" }}>Tx {response.txDigest}</div>
                       </div>
                       <div className="font-mono text-[10px]" style={{ color: "var(--text-secondary)" }}>
                         <div style={{ color: "var(--text-muted)" }}>Submitter</div>

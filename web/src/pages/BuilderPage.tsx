@@ -346,6 +346,7 @@ export function BuilderPage() {
   const [showGuide, setShowGuide] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
   const [guideDismissForever, setGuideDismissForever] = useState(false);
+  const [mobileFieldPickerOpen, setMobileFieldPickerOpen] = useState(false);
 
   const account = useCurrentAccount();
   const client = useSuiClient();
@@ -414,7 +415,7 @@ export function BuilderPage() {
         setSelectedId(null);
       } else {
         setLeftPanelOpen(true);
-        setSelectedId("form");
+        setSelectedId(null);
       }
       return next;
     });
@@ -506,6 +507,15 @@ export function BuilderPage() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showGuide]);
+
+  useEffect(() => {
+    if (!mobileFieldPickerOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileFieldPickerOpen]);
 
   // Lock body scroll when the compact settings sheet is open
   useEffect(() => {
@@ -1246,7 +1256,7 @@ export function BuilderPage() {
           <button
             ref={fieldToolsMobileRef}
             type="button"
-            onClick={() => addField("short_text", undefined, false)}
+            onClick={() => setMobileFieldPickerOpen(true)}
             className="retro-button text-[10px] p-2"
             title="Add field"
           >
@@ -1263,21 +1273,6 @@ export function BuilderPage() {
             <span className="hidden min-[360px]:inline">Form</span>
           </button>
           <button
-            onClick={() => {
-              setSelectedId(null);
-              if (publishedFormUrl) {
-                window.open(publishedFormUrl, "_blank", "noopener,noreferrer");
-                return;
-              }
-              togglePreviewMode();
-            }}
-            className="retro-button text-[10px] p-2"
-            title={publishedFormUrl ? "Open live form" : previewMode ? "Edit" : "Preview"}
-          >
-            {publishedFormUrl ? <Eye size={14} /> : previewMode ? <EyeOff size={14} /> : <Eye size={14} />}
-            <span className="hidden min-[360px]:inline">{publishedFormUrl ? "Live" : previewMode ? "Edit" : "Preview"}</span>
-          </button>
-          <button
             ref={rulesButtonMobileRef}
             type="button"
             onClick={() => {
@@ -1290,16 +1285,61 @@ export function BuilderPage() {
             <ShieldCheck size={14} />
             <span className="hidden min-[360px]:inline">Rules</span>
           </button>
-          <button
-            ref={publishButtonMobileRef}
-            onClick={() => void deploy()}
-            disabled={deployState === "deploying" || validationErrors.length > 0}
-            className="retro-button-neon text-[10px] flex-1 justify-center disabled:opacity-50"
-            style={{ backgroundColor: "#39FF14", color: "#000" }}
+        </div>
+      ) : null}
+
+      {mobileFieldPickerOpen ? (
+        <div
+          className="lg:hidden fixed inset-0 z-[170] flex items-end"
+          style={{ background: "rgba(0, 0, 0, 0.5)" }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setMobileFieldPickerOpen(false);
+          }}
+        >
+          <div
+            className="w-full max-h-[78vh] overflow-y-auto border-t-[3px] border-retro-border"
+            style={{ background: "var(--bg-secondary)" }}
           >
-            {deployState === "deploying" ? <Wallet size={14} /> : <Rocket size={14} />}
-            <span>{deployState === "deploying" ? "Publishing" : "Publish"}</span>
-          </button>
+            <div className="sticky top-0 z-10 border-b-[2px] border-retro-border p-3 flex items-center justify-between gap-2" style={{ background: "var(--bg-card)" }}>
+              <h3 className="font-mono text-xs uppercase font-bold" style={{ color: "var(--text)" }}>Add Field</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  ref={publishButtonMobileRef}
+                  type="button"
+                  onClick={() => void deploy()}
+                  disabled={deployState === "deploying" || validationErrors.length > 0}
+                  className="retro-button-neon text-[10px] disabled:opacity-50"
+                  style={{ backgroundColor: "#39FF14", color: "#000" }}
+                >
+                  {deployState === "deploying" ? <Wallet size={13} /> : <Rocket size={13} />}
+                  {deployState === "deploying" ? "Publishing" : "Publish"}
+                </button>
+                <button type="button" onClick={() => setMobileFieldPickerOpen(false)} className="retro-button text-[10px]">
+                  <X size={13} />
+                </button>
+              </div>
+            </div>
+            <div className="p-3 grid grid-cols-2 gap-2">
+              {fieldLibrary.map((field) => {
+                const Icon = field.icon;
+                return (
+                  <button
+                    key={field.type}
+                    type="button"
+                    onClick={() => {
+                      addField(field.type, undefined, false);
+                      setMobileFieldPickerOpen(false);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 border-[3px] border-retro-border font-mono text-[10px] uppercase text-left transition-all active:scale-[0.98]"
+                    style={{ background: "var(--bg-card)", color: "var(--text-secondary)", boxShadow: "2px 2px 0px var(--shadow-color)" }}
+                  >
+                    <Icon size={13} strokeWidth={2.5} />
+                    {field.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
