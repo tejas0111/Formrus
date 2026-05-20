@@ -341,9 +341,9 @@ export function BuilderPage() {
   const [deployState, setDeployState] = useState<"idle" | "deploying" | "done" | "error">("idle");
   const [deployMessage, setDeployMessage] = useState("");
   const [shareLink, setShareLink] = useState("");
-  const [brandingUpload, setBrandingUpload] = useState<"idle" | "banner" | "avatar">("idle");
+  const [brandingUpload, setBrandingUpload] = useState<"idle" | "banner" | "logo">("idle");
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [lastDeletedField, setLastDeletedField] = useState<{ field: FormField; index: number } | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
@@ -601,7 +601,7 @@ export function BuilderPage() {
   }
 
   const [bannerPreview, setBannerPreview] = useState("");
-  const [avatarPreview, setAvatarPreview] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
 
   useEffect(() => {
     if (!bannerFile) {
@@ -614,26 +614,26 @@ export function BuilderPage() {
   }, [bannerFile, draft.branding?.bannerUrl]);
 
   useEffect(() => {
-    if (!avatarFile) {
-      setAvatarPreview(draft.branding?.avatarUrl ? safeUrl(draft.branding.avatarUrl) : "");
+    if (!logoFile) {
+      setLogoPreview(draft.branding?.avatarUrl ? safeUrl(draft.branding.avatarUrl) : "");
       return;
     }
-    const url = URL.createObjectURL(avatarFile);
-    setAvatarPreview(url);
+    const url = URL.createObjectURL(logoFile);
+    setLogoPreview(url);
     return () => URL.revokeObjectURL(url);
-  }, [avatarFile, draft.branding?.avatarUrl]);
+  }, [logoFile, draft.branding?.avatarUrl]);
 
   function updateBranding(patch: Partial<NonNullable<FormDraft["branding"]>>) {
     setDraft((current) => ({ ...current, branding: { ...current.branding, ...patch } }));
   }
 
-  async function uploadBrandingAsset(kind: "banner" | "avatar", file: File | null) {
+  async function uploadBrandingAsset(kind: "banner" | "logo", file: File | null) {
     if (!file) return;
     setDeployMessage("");
     if (kind === "banner") {
       setBannerFile(file);
     } else {
-      setAvatarFile(file);
+      setLogoFile(file);
     }
   }
 
@@ -713,10 +713,10 @@ export function BuilderPage() {
         const blobId = await uploadFileToWalrus(bannerFile);
         finalBannerUrl = `${readBase}/v1/blobs/${blobId}`;
       }
-      if (avatarFile) {
-        setBrandingUpload("avatar");
-        setDeployMessage("Uploading avatar to Walrus...");
-        const blobId = await uploadFileToWalrus(avatarFile);
+      if (logoFile) {
+        setBrandingUpload("logo");
+        setDeployMessage("Uploading logo to Walrus...");
+        const blobId = await uploadFileToWalrus(logoFile);
         finalAvatarUrl = `${readBase}/v1/blobs/${blobId}`;
       }
       setBrandingUpload("idle");
@@ -1042,17 +1042,30 @@ export function BuilderPage() {
                 </div>
               ) : null}
               {bannerPreview ? (
-                <div className="relative border-b-[3px] border-retro-border overflow-hidden">
-                  <img src={bannerPreview} alt="" className="w-full h-auto block" />
+                <div
+                  className="relative border-b-[3px] border-retro-border overflow-hidden"
+                  style={{ height: `${draft.branding?.bannerHeight ?? 160}px` }}
+                >
+                  <img
+                    src={bannerPreview}
+                    alt=""
+                    className="w-full h-full block object-cover"
+                    style={{ objectPosition: `center ${draft.branding?.bannerPosition ?? 50}%` }}
+                  />
                 </div>
               ) : null}
-              <div className={`p-5 ${bannerPreview ? "pt-0" : ""}`}>
-                {avatarPreview ? (
+              <div className={`p-5 ${bannerPreview ? "pt-0" : ""} relative z-30`}>
+                {logoPreview ? (
                   <img
-                    src={avatarPreview}
+                    src={logoPreview}
                     alt=""
-                    className={`${bannerPreview ? "-mt-10" : ""} w-20 h-20 object-cover border-[3px] border-retro-border mb-4`}
-                    style={{ background: "var(--bg-card)", boxShadow: "3px 3px 0px var(--shadow-color)" }}
+                    className={`${bannerPreview ? "-mt-10 md:-mt-12" : ""} object-cover border-[3px] border-retro-border mb-4 relative z-40`}
+                    style={{
+                      width: `${draft.branding?.logoSize ?? 80}px`,
+                      height: `${draft.branding?.logoSize ?? 80}px`,
+                      background: "var(--bg-card)",
+                      boxShadow: "3px 3px 0px var(--shadow-color)"
+                    }}
                   />
                 ) : null}
                 <h2 className="font-mono font-bold text-xl uppercase mb-2" style={{ color: "var(--text)" }}>{draft.title}</h2>
@@ -1193,9 +1206,9 @@ export function BuilderPage() {
                     updateBranding={updateBranding}
                     uploadBrandingAsset={uploadBrandingAsset}
                     bannerPreview={bannerPreview}
-                    avatarPreview={avatarPreview}
+                    logoPreview={logoPreview}
                     setBannerFile={setBannerFile}
-                    setAvatarFile={setAvatarFile}
+                    setLogoFile={setLogoFile}
                     openAdvancedSettings={() => setAdvancedSettingsOpen(true)}
                   />
 
@@ -1249,9 +1262,9 @@ export function BuilderPage() {
                       updateBranding={updateBranding}
                       uploadBrandingAsset={uploadBrandingAsset}
                       bannerPreview={bannerPreview}
-                      avatarPreview={avatarPreview}
+                      logoPreview={logoPreview}
                       setBannerFile={setBannerFile}
-                      setAvatarFile={setAvatarFile}
+                      setLogoFile={setLogoFile}
                       openAdvancedSettings={() => setAdvancedSettingsOpen(true)}
                     />
 
@@ -2487,20 +2500,20 @@ function FormSettings({
   updateBranding,
   uploadBrandingAsset,
   bannerPreview,
-  avatarPreview,
+  logoPreview,
   setBannerFile,
-  setAvatarFile,
+  setLogoFile,
   openAdvancedSettings
 }: {
   draft: FormDraft;
-  brandingUpload: "idle" | "banner" | "avatar";
+  brandingUpload: "idle" | "banner" | "logo";
   setDraft: Dispatch<SetStateAction<FormDraft>>;
   updateBranding: (patch: Partial<NonNullable<FormDraft["branding"]>>) => void;
-  uploadBrandingAsset: (kind: "banner" | "avatar", file: File | null) => Promise<void>;
+  uploadBrandingAsset: (kind: "banner" | "logo", file: File | null) => Promise<void>;
   bannerPreview: string;
-  avatarPreview: string;
+  logoPreview: string;
   setBannerFile: Dispatch<SetStateAction<File | null>>;
-  setAvatarFile: Dispatch<SetStateAction<File | null>>;
+  setLogoFile: Dispatch<SetStateAction<File | null>>;
   openAdvancedSettings: () => void;
 }) {
   return (
@@ -2537,26 +2550,77 @@ function FormSettings({
           </span>
         </label>
         <label className="block">
-          <span className="font-mono text-[10px] uppercase font-bold mb-1.5 block" style={{ color: "var(--text-muted)" }}>Avatar</span>
+          <span className="font-mono text-[10px] uppercase font-bold mb-1.5 block" style={{ color: "var(--text-muted)" }}>Logo</span>
           <input
             type="file"
             accept="image/*"
-            onChange={(event) => void uploadBrandingAsset("avatar", event.target.files?.[0] ?? null)}
+            onChange={(event) => void uploadBrandingAsset("logo", event.target.files?.[0] ?? null)}
             className="hidden"
           />
           <span className="retro-button text-[10px] w-full justify-center cursor-pointer">
             <Upload size={12} />
-            {brandingUpload === "avatar" ? "Uploading" : avatarPreview ? "Replace" : "Upload"}
+            {brandingUpload === "logo" ? "Uploading" : logoPreview ? "Replace" : "Upload"}
           </span>
         </label>
       </div>
-      {(bannerPreview || avatarPreview) ? (
+
+      {bannerPreview ? (
+        <div className="space-y-3 p-3 border-[2px] border-retro-border" style={{ background: "var(--bg-secondary)" }}>
+          <div>
+            <div className="flex justify-between mb-1">
+              <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Banner Height</span>
+              <span className="font-mono text-[9px]">{draft.branding?.bannerHeight ?? 160}px</span>
+            </div>
+            <input
+              type="range"
+              min="80"
+              max="400"
+              value={draft.branding?.bannerHeight ?? 160}
+              onChange={(e) => updateBranding({ bannerHeight: parseInt(e.target.value, 10) })}
+              className="w-full accent-neon-lime"
+            />
+          </div>
+          <div>
+            <div className="flex justify-between mb-1">
+              <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Crop Position</span>
+              <span className="font-mono text-[9px]">{draft.branding?.bannerPosition ?? 50}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={draft.branding?.bannerPosition ?? 50}
+              onChange={(e) => updateBranding({ bannerPosition: parseInt(e.target.value, 10) })}
+              className="w-full accent-neon-lime"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {logoPreview ? (
+        <div className="p-3 border-[2px] border-retro-border" style={{ background: "var(--bg-secondary)" }}>
+          <div className="flex justify-between mb-1">
+            <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Logo Size</span>
+            <span className="font-mono text-[9px]">{draft.branding?.logoSize ?? 80}px</span>
+          </div>
+          <input
+            type="range"
+            min="40"
+            max="160"
+            value={draft.branding?.logoSize ?? 80}
+            onChange={(e) => updateBranding({ logoSize: parseInt(e.target.value, 10) })}
+            className="w-full accent-neon-lime"
+          />
+        </div>
+      ) : null}
+
+      {(bannerPreview || logoPreview) ? (
         <button
           type="button"
           onClick={() => {
-            updateBranding({ bannerUrl: "", avatarUrl: "" });
+            updateBranding({ bannerUrl: "", avatarUrl: "", bannerHeight: 160, bannerPosition: 50, logoSize: 80 });
             setBannerFile(null);
-            setAvatarFile(null);
+            setLogoFile(null);
           }}
           className="font-mono text-[10px] uppercase font-bold transition-colors hover:text-neon-lime"
           style={{ color: "var(--text-secondary)" }}

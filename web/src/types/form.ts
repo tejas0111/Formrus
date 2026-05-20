@@ -47,6 +47,9 @@ export interface FormField {
 export interface FormBranding {
   bannerUrl?: string;
   avatarUrl?: string;
+  bannerHeight?: number;
+  bannerPosition?: number;
+  logoSize?: number;
 }
 
 export interface FormHandler {

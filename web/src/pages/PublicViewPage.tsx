@@ -426,8 +426,16 @@ export function PublicViewPage() {
           style={{ background: "var(--bg-card)", boxShadow: "6px 6px 0px var(--shadow-color)" }}
         >
           {bannerUrl ? (
-            <div className="relative border-b-[3px] border-retro-border">
-              <img src={bannerUrl} alt="" className="w-full h-auto block" />
+            <div
+              className="relative border-b-[3px] border-retro-border overflow-hidden"
+              style={{ height: `${schema?.branding?.bannerHeight ?? 180}px` }}
+            >
+              <img
+                src={bannerUrl}
+                alt=""
+                className="w-full h-full block object-cover"
+                style={{ objectPosition: `center ${schema?.branding?.bannerPosition ?? 50}%` }}
+              />
               <div
                 className="absolute inset-0 z-10 pointer-events-none"
                 style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.1) 100%)" }}
@@ -438,13 +446,18 @@ export function PublicViewPage() {
             </div>
           ) : null}
 
-          <div className={`p-5 md:p-6 ${bannerUrl && avatarUrl ? "-mt-10 md:-mt-12 relative z-30" : ""}`}>
+          <div className="p-5 md:p-6 relative z-30">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt=""
-                className={`${bannerUrl ? "w-20 h-20 md:w-24 md:h-24" : "w-20 h-20"} object-cover border-[3px] border-retro-border mb-4`}
-                style={{ boxShadow: "4px 4px 0px var(--shadow-color)" }}
+                className={`${bannerUrl ? "-mt-12 md:-mt-16" : ""} object-cover border-[3px] border-retro-border mb-4 relative z-40`}
+                style={{
+                  width: `${schema?.branding?.logoSize ?? 80}px`,
+                  height: `${schema?.branding?.logoSize ?? 80}px`,
+                  boxShadow: "4px 4px 0px var(--shadow-color)",
+                  background: "var(--bg-card)"
+                }}
               />
             ) : null}
 
