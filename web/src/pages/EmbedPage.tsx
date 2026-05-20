@@ -396,7 +396,10 @@ export function EmbedPage({
             </div>
           ) : null}
 
-          <div className="p-4 md:p-5 relative z-30">
+          <div className={`p-4 md:p-5 relative z-30 flex flex-col ${
+            schema?.branding?.logoAlign === "center" ? "items-center" : 
+            schema?.branding?.logoAlign === "right" ? "items-end" : "items-start"
+          }`}>
             {avatarUrl ? (
               <img
                 src={avatarUrl}

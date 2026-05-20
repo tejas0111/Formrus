@@ -50,6 +50,7 @@ export interface FormBranding {
   bannerHeight?: number;
   bannerPosition?: number;
   logoSize?: number;
+  logoAlign?: "left" | "center" | "right";
 }
 
 export interface FormHandler {

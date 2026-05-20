@@ -1054,7 +1054,10 @@ export function BuilderPage() {
                   />
                 </div>
               ) : null}
-              <div className={`p-5 ${bannerPreview ? "pt-0" : ""} relative z-30`}>
+              <div className={`p-5 ${bannerPreview ? "pt-0" : ""} relative z-30 flex flex-col ${
+                draft.branding?.logoAlign === "center" ? "items-center" : 
+                draft.branding?.logoAlign === "right" ? "items-end" : "items-start"
+              }`}>
                 {logoPreview ? (
                   <img
                     src={logoPreview}
@@ -2565,10 +2568,14 @@ function FormSettings({
       </div>
 
       {bannerPreview ? (
-        <div className="space-y-3 p-3 border-[2px] border-retro-border" style={{ background: "var(--bg-secondary)" }}>
+        <div className="p-3 border-[2px] border-retro-border space-y-4" style={{ background: "var(--bg-secondary)" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1.5 h-1.5 bg-neon-lime" />
+            <span className="font-mono text-[10px] uppercase font-bold" style={{ color: "var(--text)" }}>Banner Controls</span>
+          </div>
           <div>
-            <div className="flex justify-between mb-1">
-              <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Banner Height</span>
+            <div className="flex justify-between mb-1.5">
+              <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Height</span>
               <span className="font-mono text-[9px]">{draft.branding?.bannerHeight ?? 160}px</span>
             </div>
             <input
@@ -2577,11 +2584,11 @@ function FormSettings({
               max="400"
               value={draft.branding?.bannerHeight ?? 160}
               onChange={(e) => updateBranding({ bannerHeight: parseInt(e.target.value, 10) })}
-              className="w-full accent-neon-lime"
+              className="w-full accent-neon-lime cursor-ns-resize"
             />
           </div>
           <div>
-            <div className="flex justify-between mb-1">
+            <div className="flex justify-between mb-1.5">
               <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Crop Position</span>
               <span className="font-mono text-[9px]">{draft.branding?.bannerPosition ?? 50}%</span>
             </div>
@@ -2591,26 +2598,51 @@ function FormSettings({
               max="100"
               value={draft.branding?.bannerPosition ?? 50}
               onChange={(e) => updateBranding({ bannerPosition: parseInt(e.target.value, 10) })}
-              className="w-full accent-neon-lime"
+              className="w-full accent-neon-lime cursor-ns-resize"
             />
           </div>
         </div>
       ) : null}
 
       {logoPreview ? (
-        <div className="p-3 border-[2px] border-retro-border" style={{ background: "var(--bg-secondary)" }}>
-          <div className="flex justify-between mb-1">
-            <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Logo Size</span>
-            <span className="font-mono text-[9px]">{draft.branding?.logoSize ?? 80}px</span>
+        <div className="p-3 border-[2px] border-retro-border space-y-4" style={{ background: "var(--bg-secondary)" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1.5 h-1.5 bg-neon-lime" />
+            <span className="font-mono text-[10px] uppercase font-bold" style={{ color: "var(--text)" }}>Logo Controls</span>
           </div>
-          <input
-            type="range"
-            min="40"
-            max="160"
-            value={draft.branding?.logoSize ?? 80}
-            onChange={(e) => updateBranding({ logoSize: parseInt(e.target.value, 10) })}
-            className="w-full accent-neon-lime"
-          />
+          <div>
+            <div className="flex justify-between mb-1.5">
+              <span className="font-mono text-[9px] uppercase font-bold" style={{ color: "var(--text-muted)" }}>Size</span>
+              <span className="font-mono text-[9px]">{draft.branding?.logoSize ?? 80}px</span>
+            </div>
+            <input
+              type="range"
+              min="40"
+              max="160"
+              value={draft.branding?.logoSize ?? 80}
+              onChange={(e) => updateBranding({ logoSize: parseInt(e.target.value, 10) })}
+              className="w-full accent-neon-lime cursor-ew-resize"
+            />
+          </div>
+          <div>
+            <span className="font-mono text-[9px] uppercase font-bold mb-2 block" style={{ color: "var(--text-muted)" }}>Alignment</span>
+            <div className="grid grid-cols-3 gap-1">
+              {(["left", "center", "right"] as const).map((align) => (
+                <button
+                  key={align}
+                  type="button"
+                  onClick={() => updateBranding({ logoAlign: align })}
+                  className={`retro-button text-[9px] py-1.5 justify-center transition-all ${
+                    draft.branding?.logoAlign === align || (!draft.branding?.logoAlign && align === "left") 
+                    ? "border-neon-lime text-neon-lime bg-neon-lime/10" 
+                    : ""
+                  }`}
+                >
+                  {align === "left" ? "LEFT" : align === "center" ? "CENTER" : "RIGHT"}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       ) : null}
 

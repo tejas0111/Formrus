@@ -446,7 +446,10 @@ export function PublicViewPage() {
             </div>
           ) : null}
 
-          <div className="p-5 md:p-6 relative z-30">
+          <div className={`p-5 md:p-6 relative z-30 flex flex-col ${
+            schema?.branding?.logoAlign === "center" ? "items-center" : 
+            schema?.branding?.logoAlign === "right" ? "items-end" : "items-start"
+          }`}>
             {avatarUrl ? (
               <img
                 src={avatarUrl}
