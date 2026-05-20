@@ -342,6 +342,8 @@ export function BuilderPage() {
   const [deployMessage, setDeployMessage] = useState("");
   const [shareLink, setShareLink] = useState("");
   const [brandingUpload, setBrandingUpload] = useState<"idle" | "banner" | "avatar">("idle");
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [lastDeletedField, setLastDeletedField] = useState<{ field: FormField; index: number } | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
@@ -598,27 +600,40 @@ export function BuilderPage() {
     setDraft((current) => ({ ...current, eligibility: { ...current.eligibility, ...patch } }));
   }
 
+  const [bannerPreview, setBannerPreview] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState("");
+
+  useEffect(() => {
+    if (!bannerFile) {
+      setBannerPreview(draft.branding?.bannerUrl ? safeUrl(draft.branding.bannerUrl) : "");
+      return;
+    }
+    const url = URL.createObjectURL(bannerFile);
+    setBannerPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [bannerFile, draft.branding?.bannerUrl]);
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreview(draft.branding?.avatarUrl ? safeUrl(draft.branding.avatarUrl) : "");
+      return;
+    }
+    const url = URL.createObjectURL(avatarFile);
+    setAvatarPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [avatarFile, draft.branding?.avatarUrl]);
+
   function updateBranding(patch: Partial<NonNullable<FormDraft["branding"]>>) {
     setDraft((current) => ({ ...current, branding: { ...current.branding, ...patch } }));
   }
 
   async function uploadBrandingAsset(kind: "banner" | "avatar", file: File | null) {
     if (!file) return;
-    setBrandingUpload(kind);
     setDeployMessage("");
-
-    try {
-      const blobId = await uploadFileToWalrus(file);
-      const readBase = walrusAggregatorUrl ?? walrusPublisherUrl;
-      if (!readBase) throw new Error("Missing VITE_WALRUS_AGGREGATOR_URL or VITE_WALRUS_PUBLISHER_URL.");
-
-      const url = `${readBase}/v1/blobs/${blobId}`;
-      updateBranding(kind === "banner" ? { bannerUrl: url } : { avatarUrl: url });
-    } catch (error) {
-      setDeployState("error");
-      setDeployMessage(translateError(error));
-    } finally {
-      setBrandingUpload("idle");
+    if (kind === "banner") {
+      setBannerFile(file);
+    } else {
+      setAvatarFile(file);
     }
   }
 
@@ -656,6 +671,22 @@ export function BuilderPage() {
     }));
   }
 
+  function downloadSchemaBackup(draftData: FormDraft, formId: string) {
+    try {
+      const blob = new Blob([JSON.stringify(draftData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `formrus-backup-${formId || "new"}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download backup", err);
+    }
+  }
+
   async function deploy() {
     if (!account?.address) {
       setDeployState("error");
@@ -670,7 +701,37 @@ export function BuilderPage() {
     try {
       if (validationErrors.length > 0) throw new Error(validationErrors[0]);
 
-      const { schemaBlobId } = await uploadFormToWalrus(draft);
+      let finalBannerUrl = draft.branding?.bannerUrl;
+      let finalAvatarUrl = draft.branding?.avatarUrl;
+
+      const readBase = walrusAggregatorUrl ?? walrusPublisherUrl;
+      if (!readBase) throw new Error("Missing VITE_WALRUS_AGGREGATOR_URL or VITE_WALRUS_PUBLISHER_URL.");
+
+      if (bannerFile) {
+        setBrandingUpload("banner");
+        setDeployMessage("Uploading banner to Walrus...");
+        const blobId = await uploadFileToWalrus(bannerFile);
+        finalBannerUrl = `${readBase}/v1/blobs/${blobId}`;
+      }
+      if (avatarFile) {
+        setBrandingUpload("avatar");
+        setDeployMessage("Uploading avatar to Walrus...");
+        const blobId = await uploadFileToWalrus(avatarFile);
+        finalAvatarUrl = `${readBase}/v1/blobs/${blobId}`;
+      }
+      setBrandingUpload("idle");
+
+      const draftToUpload = {
+        ...draft,
+        branding: {
+          ...draft.branding,
+          bannerUrl: finalBannerUrl,
+          avatarUrl: finalAvatarUrl,
+        }
+      };
+
+      setDeployMessage("Uploading form schema to Walrus...");
+      const { schemaBlobId } = await uploadFormToWalrus(draftToUpload);
       const dna = computeFormDna({
         creatorAddress: account.address,
         schemaBlobId,
@@ -698,6 +759,9 @@ export function BuilderPage() {
       if (formObjectId) {
         setDeployMessage(`Published. DNA: ${dna.dnaHex} | blob: ${schemaBlobId} | tx: ${result.digest}`);
         setShareLink(`${window.location.origin}/view/${formObjectId}`);
+        // Automatically download backup for the user
+        downloadSchemaBackup(draftToUpload, formObjectId);
+        toast.success("Form published & backup saved!");
       } else {
         setDeployMessage(`Published but could not extract form object ID. TX: ${result.digest}. Check the transaction on Sui explorer.`);
       }
@@ -977,18 +1041,17 @@ export function BuilderPage() {
                   </span>
                 </div>
               ) : null}
-              {safeUrl(draft.branding?.bannerUrl) ? (
-                <div
-                  className="h-40 md:h-48 bg-cover bg-center border-b-[3px] border-retro-border"
-                  style={{ backgroundImage: `url(${safeUrl(draft.branding?.bannerUrl)})` }}
-                />
+              {bannerPreview ? (
+                <div className="relative border-b-[3px] border-retro-border overflow-hidden">
+                  <img src={bannerPreview} alt="" className="w-full h-auto block" />
+                </div>
               ) : null}
-              <div className={`p-5 ${safeUrl(draft.branding?.bannerUrl) ? "pt-0" : ""}`}>
-                {safeUrl(draft.branding?.avatarUrl) ? (
+              <div className={`p-5 ${bannerPreview ? "pt-0" : ""}`}>
+                {avatarPreview ? (
                   <img
-                    src={safeUrl(draft.branding?.avatarUrl)}
+                    src={avatarPreview}
                     alt=""
-                    className={`${safeUrl(draft.branding?.bannerUrl) ? "-mt-10" : ""} w-20 h-20 object-cover border-[3px] border-retro-border mb-4`}
+                    className={`${bannerPreview ? "-mt-10" : ""} w-20 h-20 object-cover border-[3px] border-retro-border mb-4`}
                     style={{ background: "var(--bg-card)", boxShadow: "3px 3px 0px var(--shadow-color)" }}
                   />
                 ) : null}
@@ -1129,8 +1192,13 @@ export function BuilderPage() {
                     setDraft={setDraft}
                     updateBranding={updateBranding}
                     uploadBrandingAsset={uploadBrandingAsset}
+                    bannerPreview={bannerPreview}
+                    avatarPreview={avatarPreview}
+                    setBannerFile={setBannerFile}
+                    setAvatarFile={setAvatarFile}
                     openAdvancedSettings={() => setAdvancedSettingsOpen(true)}
                   />
+
                 ) : selectedField ? (
                   <FieldSettings
                     field={selectedField}
@@ -1180,8 +1248,13 @@ export function BuilderPage() {
                       setDraft={setDraft}
                       updateBranding={updateBranding}
                       uploadBrandingAsset={uploadBrandingAsset}
+                      bannerPreview={bannerPreview}
+                      avatarPreview={avatarPreview}
+                      setBannerFile={setBannerFile}
+                      setAvatarFile={setAvatarFile}
                       openAdvancedSettings={() => setAdvancedSettingsOpen(true)}
                     />
+
                   ) : selectedField ? (
                     <FieldSettings
                       field={selectedField}
@@ -2413,6 +2486,10 @@ function FormSettings({
   setDraft,
   updateBranding,
   uploadBrandingAsset,
+  bannerPreview,
+  avatarPreview,
+  setBannerFile,
+  setAvatarFile,
   openAdvancedSettings
 }: {
   draft: FormDraft;
@@ -2420,6 +2497,10 @@ function FormSettings({
   setDraft: Dispatch<SetStateAction<FormDraft>>;
   updateBranding: (patch: Partial<NonNullable<FormDraft["branding"]>>) => void;
   uploadBrandingAsset: (kind: "banner" | "avatar", file: File | null) => Promise<void>;
+  bannerPreview: string;
+  avatarPreview: string;
+  setBannerFile: Dispatch<SetStateAction<File | null>>;
+  setAvatarFile: Dispatch<SetStateAction<File | null>>;
   openAdvancedSettings: () => void;
 }) {
   return (
@@ -2452,7 +2533,7 @@ function FormSettings({
           />
           <span className="retro-button text-[10px] w-full justify-center cursor-pointer">
             <Upload size={12} />
-            {brandingUpload === "banner" ? "Uploading" : draft.branding?.bannerUrl ? "Replace" : "Upload"}
+            {brandingUpload === "banner" ? "Uploading" : bannerPreview ? "Replace" : "Upload"}
           </span>
         </label>
         <label className="block">
@@ -2465,14 +2546,18 @@ function FormSettings({
           />
           <span className="retro-button text-[10px] w-full justify-center cursor-pointer">
             <Upload size={12} />
-            {brandingUpload === "avatar" ? "Uploading" : draft.branding?.avatarUrl ? "Replace" : "Upload"}
+            {brandingUpload === "avatar" ? "Uploading" : avatarPreview ? "Replace" : "Upload"}
           </span>
         </label>
       </div>
-      {(safeUrl(draft.branding?.bannerUrl) || safeUrl(draft.branding?.avatarUrl)) ? (
+      {(bannerPreview || avatarPreview) ? (
         <button
           type="button"
-          onClick={() => updateBranding({ bannerUrl: "", avatarUrl: "" })}
+          onClick={() => {
+            updateBranding({ bannerUrl: "", avatarUrl: "" });
+            setBannerFile(null);
+            setAvatarFile(null);
+          }}
           className="font-mono text-[10px] uppercase font-bold transition-colors hover:text-neon-lime"
           style={{ color: "var(--text-secondary)" }}
         >

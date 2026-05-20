@@ -379,9 +379,12 @@ export function EmbedPage({
           </div>
 
           {bannerUrl ? (
-            <div className="relative h-32 md:h-40 overflow-hidden border-b-[3px] border-retro-border">
-              <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.28) 100%)" }} />
+            <div className="relative border-b-[3px] border-retro-border">
+              <img src={bannerUrl} alt="" className="w-full h-auto block" />
+              <div
+                className="absolute inset-0 z-10 pointer-events-none"
+                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.1) 100%)" }}
+              />
             </div>
           ) : null}
 

@@ -595,8 +595,9 @@ export function DashboardFormPage() {
     }
   }
 
-  async function adminRenewSchemaBlob(epochs: number) {
-    if (!account?.address || !schema) return;
+  async function adminRenewSchemaBlob(epochs: number, backupSchema?: FormDraft) {
+    const targetSchema = backupSchema ?? schema;
+    if (!account?.address || !targetSchema) return;
     if (!Number.isInteger(epochs) || epochs < 1) {
       setError("Epochs must be a positive integer.");
       return;
@@ -606,7 +607,7 @@ export function DashboardFormPage() {
     setAdminMsg(null);
     setError(null);
     try {
-      const newBlobId = await uploadJson(schema, { epochs });
+      const newBlobId = await uploadJson(targetSchema, { epochs });
       const tx = buildUpdateSchemaBlobIdTx({ formObjectId: formId, newSchemaBlobId: newBlobId });
       const result = await signAndExecuteTransaction({ transaction: tx, chain: `sui:${suiNetwork}` });
       setAdminMsg(`Schema renewed | tx: ${result.digest}`);
@@ -943,6 +944,24 @@ export function DashboardFormPage() {
     setShowGuide(false);
     setGuideStep(0);
     setGuideDismissForever(false);
+  }
+
+  function downloadBackup() {
+    if (!schema) return;
+    try {
+      const blob = new Blob([JSON.stringify(schema, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `formrus-backup-${formId}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("Backup downloaded");
+    } catch (err) {
+      toast.error("Failed to download backup");
+    }
   }
 
   return (
@@ -1343,6 +1362,7 @@ export function DashboardFormPage() {
             onSetMaxSubmissions={adminSetMaxSubmissions}
             onDrain={adminDrainAndDeactivate}
             onRenewSchema={adminRenewSchemaBlob}
+            onDownloadBackup={downloadBackup}
             schemaBlobMissing={schemaBlobStatus === "missing"}
             schemaRenewBusy={schemaRenewBusy}
             schemaLoaded={Boolean(schema)}
@@ -1578,6 +1598,7 @@ function FormSettingsModal({
   onSetMaxSubmissions,
   onDrain,
   onRenewSchema,
+  onDownloadBackup,
   schemaBlobMissing,
   schemaRenewBusy,
   schemaLoaded,
@@ -1603,7 +1624,8 @@ function FormSettingsModal({
   onUpdateReward: (suiAmount: string) => Promise<void>;
   onSetMaxSubmissions: (nextMaxPerAddress: number, nextMaxTotal: number) => Promise<void>;
   onDrain: () => Promise<void>;
-  onRenewSchema: (epochs: number) => Promise<void>;
+  onRenewSchema: (epochs: number, backupSchema?: FormDraft) => Promise<void>;
+  onDownloadBackup: () => void;
   schemaBlobMissing: boolean;
   schemaRenewBusy: boolean;
   schemaLoaded: boolean;
@@ -1678,6 +1700,7 @@ function FormSettingsModal({
               maxPerAddress={maxPerAddress}
               maxTotal={maxTotal}
               onRenewSchema={onRenewSchema}
+              onDownloadBackup={onDownloadBackup}
               schemaBlobMissing={schemaBlobMissing}
               schemaRenewBusy={schemaRenewBusy}
               schemaLoaded={schemaLoaded}
@@ -1850,7 +1873,23 @@ function PoolPanel({ remainingMist, busy, canTopUp, onTopUp }: {
   );
 }
 
-function FormControlsPanel({ form, formActive, busy, onToggleActive, onUpdateSchema, onUpdateReward, onSetMaxSubmissions, maxPerAddress, maxTotal, onRenewSchema, schemaBlobMissing, schemaRenewBusy, schemaLoaded, onExtendExpiry }: {
+function FormControlsPanel({
+  form,
+  formActive,
+  busy,
+  onToggleActive,
+  onUpdateSchema,
+  onUpdateReward,
+  onSetMaxSubmissions,
+  maxPerAddress,
+  maxTotal,
+  onRenewSchema,
+  onDownloadBackup,
+  schemaBlobMissing,
+  schemaRenewBusy,
+  schemaLoaded,
+  onExtendExpiry
+}: {
   form: FormEventRow | null;
   formActive: boolean | null;
   busy: boolean;
@@ -1860,7 +1899,8 @@ function FormControlsPanel({ form, formActive, busy, onToggleActive, onUpdateSch
   onSetMaxSubmissions: (maxPerAddress: number, maxTotal: number) => Promise<void>;
   maxPerAddress: number;
   maxTotal: number;
-  onRenewSchema: (epochs: number) => Promise<void>;
+  onRenewSchema: (epochs: number, backupSchema?: FormDraft) => Promise<void>;
+  onDownloadBackup: () => void;
   schemaBlobMissing: boolean;
   schemaRenewBusy: boolean;
   schemaLoaded: boolean;
@@ -1872,6 +1912,22 @@ function FormControlsPanel({ form, formActive, busy, onToggleActive, onUpdateSch
   const [newMaxTotal, setNewMaxTotal] = useState("");
   const [expiryDays, setExpiryDays] = useState("30");
   const [renewEpochs, setRenewEpochs] = useState("5");
+  const [backupSchema, setBackupSchema] = useState<FormDraft | null>(null);
+
+  const handleBackupUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const json = JSON.parse(evt.target?.result as string);
+        setBackupSchema(json);
+      } catch (err) {
+        alert("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div className="space-y-4">
@@ -1999,15 +2055,38 @@ function FormControlsPanel({ form, formActive, busy, onToggleActive, onUpdateSch
             onClick={() => {
               const parsedEpochs = Number(renewEpochs);
               if (!Number.isInteger(parsedEpochs) || parsedEpochs < 1) return;
-              void onRenewSchema(parsedEpochs);
+              void onRenewSchema(parsedEpochs, backupSchema ?? undefined);
             }}
-            disabled={busy || schemaRenewBusy || !schemaLoaded || !Number.isInteger(Number(renewEpochs)) || Number(renewEpochs) < 1}
+            disabled={busy || schemaRenewBusy || (!schemaLoaded && !backupSchema) || !Number.isInteger(Number(renewEpochs)) || Number(renewEpochs) < 1}
             className="retro-button text-[10px] px-2 disabled:opacity-50"
-            title={!schemaLoaded ? "Schema JSON is not loaded in this session, so renew cannot re-upload it." : undefined}
+            title={(!schemaLoaded && !backupSchema) ? "Schema JSON is not loaded, please upload a backup JSON to renew." : undefined}
           >
             {schemaRenewBusy ? "Renewing..." : "Renew"}
           </button>
         </div>
+        {!schemaLoaded && (
+          <div className="mt-2">
+            <label className="block">
+              <span className="font-mono text-[9px] uppercase font-bold mb-1 block" style={{ color: "var(--text-muted)" }}>Upload Backup Schema JSON</span>
+              <input type="file" accept=".json" onChange={handleBackupUpload} className="hidden" id="backup-schema-upload" />
+              <label htmlFor="backup-schema-upload" className="retro-button text-[9px] py-1 px-2 cursor-pointer inline-flex items-center gap-1">
+                <FileText size={10} />
+                {backupSchema ? "JSON Loaded" : "Select File"}
+              </label>
+            </label>
+          </div>
+        )}
+        {schemaLoaded && (
+          <div className="mt-2">
+            <button
+              onClick={onDownloadBackup}
+              className="retro-button text-[9px] py-1 px-2 inline-flex items-center gap-1"
+            >
+              <Download size={10} />
+              Download Backup JSON
+            </button>
+          </div>
+        )}
         <p className="font-mono text-[9px] mt-2" style={{ color: "var(--text-muted)" }}>
           Renew re-uploads the current schema JSON to Walrus with the epoch value above, then updates this form's schema blob pointer.
         </p>

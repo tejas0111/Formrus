@@ -426,11 +426,11 @@ export function PublicViewPage() {
           style={{ background: "var(--bg-card)", boxShadow: "6px 6px 0px var(--shadow-color)" }}
         >
           {bannerUrl ? (
-            <div className="relative h-44 md:h-56 overflow-hidden border-b-[3px] border-retro-border">
-              <img src={bannerUrl} alt="" className="absolute inset-0 z-0 w-full h-full object-cover" />
+            <div className="relative border-b-[3px] border-retro-border">
+              <img src={bannerUrl} alt="" className="w-full h-auto block" />
               <div
-                className="absolute inset-0 z-10"
-                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.28) 100%)" }}
+                className="absolute inset-0 z-10 pointer-events-none"
+                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.1) 100%)" }}
               />
               <div className="absolute right-4 top-4 z-20 border-[2px] border-retro-border px-2 py-1 font-mono text-[10px] uppercase font-bold" style={{ background: "#FFFF00", color: "#000" }}>
                 Live on Sui
